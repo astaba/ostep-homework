@@ -1,11 +1,10 @@
-
 # Overview
 
 This program, called process-run.py, allows you to see how the state of a
-process state changes as it runs on a CPU. As described in the chapter, 
+process state changes as it runs on a CPU. As described in the chapter,
 processes can be in a few different states:
 
-```sh
+```code
 RUNNING - the process is using the CPU right now
 READY   - the process could be using the CPU right now
           but (alas) some other process is
@@ -19,19 +18,19 @@ runs, and thus learn a little bit better how these things work.
 
 To run the program and get its options, do this:
 
-```sh
+```shell
 prompt> ./process-run.py -h
 ```
 
 If this doesn't work, type `python` before the command, like this:
 
-```sh
+```shell
 prompt> python process-run.py -h
 ```
 
 What you should see is this:
 
-```sh
+```shell
 Usage: process-run.py [options]
 
 Options:
@@ -59,17 +58,21 @@ Options:
 The most important option to understand is the PROCESS_LIST (as specified by
 the -l or --processlist flags) which specifies exactly what each running
 program (or 'process') will do. A process consists of instructions, and each
-instruction can just do one of two things: 
+instruction can just do one of two things:
 - use the CPU 
 - issue an IO (and wait for it to complete)
+- By default the `IO_LENGTH==5` in other issuing an IO call with `RUN:io`,
+IO execution takes **5 clock ticks** to complete or block the calling process
+for the same amount of time. On the other hand `RUN:cpu` default to only one
+clock ticks.
 
 When a process uses the CPU (and does no IO at all), it should simply
 alternate between RUNNING on the CPU or being READY to run. For example, here
 is a simple run that just has one program being run, and that program only
 uses the CPU (it does no IO).
 
-```sh
-prompt> ./process-run.py -l 5:100 
+```shell
+prompt> ./process-run.py -l 5:100
 Produce a trace of what would happen when you run these processes:
 Process 0
   cpu
@@ -82,17 +85,17 @@ Important behaviors:
   System will switch when the current process is FINISHED or ISSUES AN IO
   After IOs, the process issuing the IO will run LATER (when it is its turn)
 
-prompt> 
+prompt>
 ```
 
 Here, the process we specified is "5:100" which means it should consist of 5
 instructions, and the chances that each instruction is a CPU instruction are
-100%. 
+100%.
 
 You can see what happens to the process by using the -c flag, which computes the
 answers for you:
 
-```sh
+```shell
 prompt> ./process-run.py -l 5:100 -c
 Time     PID: 0        CPU        IOs
   1     RUN:cpu          1
@@ -108,7 +111,7 @@ entire run, and not doing any I/Os.
 
 Let's make it slightly more complex by running two processes:
 
-```sh
+```shell
 prompt> ./process-run.py -l 5:100,5:100
 Produce a trace of what would happen when you run these processes:
 Process 0
@@ -133,7 +136,7 @@ Important behaviors:
 In this case, two different processes run, each again just using the CPU. What
 happens when the operating system runs them? Let's find out:
 
-```sh
+```shell
 prompt> ./process-run.py -l 5:100,5:100 -c
 Time     PID: 0     PID: 1        CPU        IOs
   1     RUN:cpu      READY          1
@@ -157,7 +160,7 @@ Let's look at one more example before getting to some questions. In this
 example, the process just issues I/O requests. We specify here that I/Os take 5
 time units to complete with the flag -L.
 
-```sh
+```shell
 prompt> ./process-run.py -l 3:0 -L 5
 Produce a trace of what would happen when you run these processes:
 Process 0
@@ -175,30 +178,30 @@ Important behaviors:
 
 What do you think the execution trace will look like? Let's find out:
 
-```sh
+```shell
 prompt> ./process-run.py -l 3:0 -L 5 -c
-Time    PID: 0       CPU       IOs
-  1         RUN:io             1
-  2        BLOCKED                           1
-  3        BLOCKED                           1
-  4        BLOCKED                           1
-  5        BLOCKED                           1
-  6        BLOCKED                           1
-  7*   RUN:io_done             1
-  8         RUN:io             1
-  9        BLOCKED                           1
- 10        BLOCKED                           1
- 11        BLOCKED                           1
- 12        BLOCKED                           1
- 13        BLOCKED                           1
- 14*   RUN:io_done             1
- 15         RUN:io             1
- 16        BLOCKED                           1
- 17        BLOCKED                           1
- 18        BLOCKED                           1
- 19        BLOCKED                           1
- 20        BLOCKED                           1
- 21*   RUN:io_done             1
+Time        PID: 0          CPU         IOs
+  1         RUN:io          1
+  2         BLOCKED                     1
+  3         BLOCKED                     1
+  4         BLOCKED                     1
+  5         BLOCKED                     1
+  6         BLOCKED                     1
+  7*        RUN:io_done     1
+  8         RUN:io          1
+  9         BLOCKED                     1
+ 10         BLOCKED                     1
+ 11         BLOCKED                     1
+ 12         BLOCKED                     1
+ 13         BLOCKED                     1
+ 14*        RUN:io_done     1
+ 15         RUN:io          1
+ 16         BLOCKED                     1
+ 17         BLOCKED                     1
+ 18         BLOCKED                     1
+ 19         BLOCKED                     1
+ 20         BLOCKED                     1
+ 21*       RUN:io_done      1
 ```
 
 As you can see, the program just issues three I/Os. When each I/O is issued,
@@ -210,9 +213,9 @@ that a single instruction to handle I/O initiation and completion is not
 particularly realistic, but just used here for simplicity.
 
 Let's print some stats (run the same command as above, but with the -p flag)
-to see some overall behaviors: 
+to see some overall behaviors:
 
-```sh
+```shell
 Stats: Total Time 21
 Stats: CPU Busy 6 (28.57%)
 Stats: IO Busy  15 (71.43%)
@@ -224,8 +227,9 @@ quite busy. In general, we'd like to keep all the devices busy, as
 that is a better use of resources.
 
 There are a few other important flags:
-```sh
-  -s SEED, --seed=SEED  the random seed  
+
+```shell
+  -s SEED, --seed=SEED  the random seed
     this gives you way to create a bunch of different jobs randomly
 
   -L IO_LENGTH, --iolength=IO_LENGTH
@@ -235,18 +239,14 @@ There are a few other important flags:
                         when to switch between processes: SWITCH_ON_IO, SWITCH_ON_END
     this determines when we switch to another process:
     - SWITCH_ON_IO, the system will switch when a process issues an IO
-    - SWITCH_ON_END, the system will only switch when the current process is done 
+    - SWITCH_ON_END, the system will only switch when the current process is done
 
   -I IO_DONE_BEHAVIOR, --iodone=IO_DONE_BEHAVIOR
                         type of behavior when IO ends: IO_RUN_LATER, IO_RUN_IMMEDIATE
     this determines when a process runs after it issues an IO:
     - IO_RUN_IMMEDIATE: switch to this process right now
-    - IO_RUN_LATER: switch to this process when it is natural to 
+    - IO_RUN_LATER: switch to this process when it is natural to
       (e.g., depending on process-switching behavior)
 ```
 
 Now go answer the questions at the back of the chapter to learn more, please.
-
-
-
-
