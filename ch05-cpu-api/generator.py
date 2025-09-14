@@ -188,6 +188,11 @@ class CodeGeneratorReadable:
         self.tab_level += 1
         return
 
+    def notify_sleep(self, thread_id, sleep_time):
+        self.tab()
+        self.fd.write(f'printf("Pid {thread_id}: sleeps {sleep_time}s\\n");\n')
+        return
+
     def add_sleep(self, sleep_time):
         self.tab()
         self.fd.write('sleep(%s);\n' % sleep_time)
@@ -217,6 +222,7 @@ class CodeGeneratorReadable:
                 assert(len(tmp) == 3)
                 self.add_fork()
                 self.add_thread(tmp[1])
+                self.notify_sleep(tmp[1], tmp[2])
                 self.add_sleep(tmp[2])
             elif tmp[0] == 'exit':
                 assert(len(tmp) == 1)
