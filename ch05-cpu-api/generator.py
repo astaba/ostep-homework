@@ -1,15 +1,17 @@
 #! /usr/bin/env python3
 
 from __future__ import print_function
+
+import os
 import random
 import re
 import string
-import os
 from optparse import OptionParser
+
 
 #
 # to make Python2 and Python3 act the same -- how dumb
-# 
+#
 def random_seed(seed):
     try:
         random.seed(seed, version=1)
@@ -154,7 +156,7 @@ class Boilerplate:
     def __fini__(self):
         close(self.fd)
         return
-    
+
 
 class CodeGeneratorReadable:
     def __init__(self, out_file_base, actions):
@@ -203,7 +205,7 @@ class CodeGeneratorReadable:
         self.tab()
         self.fd.write('wait_or_die();\n')
         return
-        
+
     def generate(self):
         self.boiler.init()
         self.boiler.main()
@@ -214,8 +216,8 @@ class CodeGeneratorReadable:
                 # fork thread_id sleep_time
                 assert(len(tmp) == 3)
                 self.add_fork()
-                self.add_sleep(tmp[2])
                 self.add_thread(tmp[1])
+                self.add_sleep(tmp[2])
             elif tmp[0] == 'exit':
                 assert(len(tmp) == 1)
                 self.add_exit()
@@ -300,7 +302,7 @@ class CodeGeneratorRunnable:
         # print('%s waited for %s' % (self.curr_thread, waiting_for[1]))
         self.fd.write('Wait(\"%s\");\n' % self.curr_thread);
         return
-        
+
     def generate(self):
         self.boiler.init_runnable()
         self.boiler.main_runnable()
@@ -311,8 +313,8 @@ class CodeGeneratorRunnable:
                 # fork thread_id sleep_time
                 assert(len(tmp) == 3)
                 self.add_fork(tmp[1], tmp[2])
-                self.add_sleep(tmp[2])
                 self.add_thread(tmp[1])
+                self.add_sleep(tmp[2])
             elif tmp[0] == 'exit':
                 assert(len(tmp) == 1)
                 self.add_exit()
@@ -409,7 +411,7 @@ class ProgramGenerator:
                     # print('wait')
                     self.add_wait()
                     n += 1
-            else:    
+            else:
                 # print('exit')
                 if self.fork_level > 0:
                     # must do all needed waits now
@@ -423,9 +425,9 @@ class ProgramGenerator:
         while self.fork_level >= 0:
             self.clean_up()
             self.fork_level -= 1
-            
+
         return self.actions
-        
+
 #
 # Parses user input into program understood by C code generators
 #
@@ -449,11 +451,11 @@ class Parser:
         while m:
             program = program.replace(m.group(), ',', 1)
             m = p.search(program, m.end())
-        
+
         # add spaces around braces
         program = program.replace('{', ' { ')
         program = program.replace('}', ' } ')
-    
+
         # now go through and find the commands
         # easy to parse by just splitting on spaces
         tokens = program.split()
@@ -566,5 +568,5 @@ else:
     # rc = os.system('cat %s.c' % options.readable)
     # print(rc)
 
-    
-    
+
+

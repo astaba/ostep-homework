@@ -1,4 +1,3 @@
-
 # Overview: `fork.py`
 
 The simulator `fork.py` is a simple tool to show what a process tree
