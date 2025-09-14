@@ -1,4 +1,4 @@
-# Homeworks
+## Homeworks
 
 Each chapter has some questions at the end; we call these "homeworks",
 because you should do the "work" at your "home". Make sense? It's one of
@@ -38,13 +38,15 @@ prompt> cd file-disks
 prompt> ./disk.py -h
 ```
 
-# Introduction
+### Roadmap
+
+## Introduction
 
 Chapter | What To Do
 --------|-----------
 [2 Introduction](http://www.cs.wisc.edu/~remzi/OSTEP/intro.pdf) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | No homework (yet)
 
-# Virtualization
+## Virtualization
 Chapter | What To Do
 --------|-----------
 [4 Abstraction: Processes](http://www.cs.wisc.edu/~remzi/OSTEP/cpu-intro.pdf) | Run [process-run.py](cpu-intro)
@@ -66,7 +68,7 @@ Chapter | What To Do
 [22 Paging Policy](http://www.cs.wisc.edu/~remzi/OSTEP/vm-beyondphys-policy.pdf) | Run [paging-policy.py](vm-beyondphys-policy)
 [23 Complete VM](http://www.cs.wisc.edu/~remzi/OSTEP/vm-complete.pdf) | No homework (yet)
 
-# Concurrency
+## Concurrency
 
 Chapter | What To Do
 --------|-----------
@@ -79,7 +81,7 @@ Chapter | What To Do
 [32 Concurrency Bugs](http://www.cs.wisc.edu/~remzi/OSTEP/threads-bugs.pdf) | Run [some C code](threads-bugs)
 [33 Event-based Concurrency](http://www.cs.wisc.edu/~remzi/OSTEP/threads-events.pdf) | Write some code
 
-# Persistence
+## Persistence
 
 Chapter | What To Do
 --------|-----------
@@ -96,3 +98,38 @@ Chapter | What To Do
 [48 Distributed Intro](http://www.cs.wisc.edu/~remzi/OSTEP/dist-intro.pdf) | Write some code
 [49 NFS](http://www.cs.wisc.edu/~remzi/OSTEP/dist-nfs.pdf) | Write some analysis code
 [50 AFS](http://www.cs.wisc.edu/~remzi/OSTEP/dist-afs.pdf) | Run [afs.py](dist-afs)
+
+## Follow up
+
+```sh
+.
+├── ch04-cpu-intro              (done)
+├── ch05-cpu-api                (done)
+├── ch07-cpu-sched
+├── ch08-cpu-sched-mlfq
+├── ch09-cpu-sched-lottery
+├── ch10-cpu-sched-multi
+├── ch15-vm-mechanism
+├── ch16-vm-segmentation
+├── ch17-vm-freespace
+├── ch18-vm-paging
+├── ch20-vm-smalltables
+├── ch21-vm-beyondphys
+├── ch22-vm-beyondphys-policy
+├── ch26-threads-intro
+├── ch27-threads-api
+├── ch28-threads-locks
+├── ch30-threads-cv
+├── ch31-threads-sema
+├── ch32-threads-bugs
+├── ch36-file-devices
+├── ch37-file-disks
+├── ch38-file-raid
+├── ch40-file-implementation
+├── ch41-file-ffs
+├── ch42-file-journaling
+├── ch43-file-lfs
+├── ch44-file-ssd
+├── ch45-file-integrity
+└── ch50-dist-afs
+```
