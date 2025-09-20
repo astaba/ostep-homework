@@ -1,4 +1,12 @@
 # Python Virtual Environment
 .venv/
+
 # Visual Studio Code
 .vscode/
+
+# ELF files
+*.out
+*.o
+
+# NASM Assembly Listing
+*.lst
