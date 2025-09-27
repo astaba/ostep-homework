@@ -1,9 +1,11 @@
 #! /usr/bin/env python3
 
 from __future__ import print_function
+
+import random
 import sys
 from optparse import OptionParser
-import random
+
 
 # to make Python2 and Python3 act the same -- how dumb
 def random_seed(seed):
@@ -14,12 +16,12 @@ def random_seed(seed):
     return
 
 parser = OptionParser()
-parser.add_option("-s", "--seed", default=0, help="the random seed", action="store", type="int", dest="seed")
+parser.add_option("-s", "--seed", default=0, help="the random seed to randomly generate and shuffle option-j times jobs durations. Same seed yield same set of random lengths.", action="store", type="int", dest="seed")
 parser.add_option("-j", "--jobs", default=3, help="number of jobs in the system", action="store", type="int", dest="jobs")
 parser.add_option("-l", "--jlist", default="", help="instead of random jobs, provide a comma-separated list of run times", action="store", type="string", dest="jlist")
-parser.add_option("-m", "--maxlen", default=10, help="max length of job", action="store", type="int", dest="maxlen")
+parser.add_option("-m", "--maxlen", default=10, help="max length of job with each 1 unit representing 1.00 secs.", action="store", type="int", dest="maxlen")
 parser.add_option("-p", "--policy", default="FIFO", help="sched policy to use: SJF, FIFO, RR", action="store", type="string", dest="policy")
-parser.add_option("-q", "--quantum", help="length of time slice for RR policy", default=1, action="store", type="int", dest="quantum")
+parser.add_option("-q", "--quantum", help="length of time slice for RR policy. Default is 1 unit representing 1.00 secs.", default=1, action="store", type="int", dest="quantum")
 parser.add_option("-c", help="compute answers for me", action="store_true", default=False, dest="solve")
 
 (options, args) = parser.parse_args()

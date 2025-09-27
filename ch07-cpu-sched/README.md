@@ -84,12 +84,15 @@ first for 1 second, Job 1 ran second for 4, and then Job 2 ran for 7
 seconds. Not too hard; it is FIFO, after all! The execution trace shows these
 results.
 
-The final statistics are useful too: they compute the "response time" (the
-time a job spends waiting after arrival before first running), the "turnaround
-time" (the time it took to complete the job since first arrival), and the
-total "wait time" (any time spent ready but not running). The stats are shown
-per job and then as an average across all jobs. Of course, you should have
-computed these things all before running with the "-c" flag!
+The final statistics are useful too. They compute:
+
+* **response time:** the time a job spends waiting after arrival before first
+running.
+* **turnaround time:** the time it took to complete the job since first
+arrival.
+* **total wait time:** any time spent ready but not running.
+
+The stats are shown per job and then as an average across all jobs. Of course, you should have computed these things all before running with the "-c" flag!
 
 If you want to try the same type of problem but with different inputs, try
 changing the number of jobs or the random seed or both. Different random seeds
