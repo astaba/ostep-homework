@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/eventfd.h>
+#include <sys/sysinfo.h>
 #include <sys/time.h>
 #include <sys/wait.h>
 #include <time.h>
@@ -121,6 +122,10 @@ int main(int argc, char *argv[]) {
   if (sysconf(_SC_NPROCESSORS_ONLN) < 2) {
     fprintf(stderr, "This program requires at least 2 logical CPUs.\n");
     exit(EXIT_FAILURE);
+  } else {
+    printf("SYSCONFIG INFO:\n"
+           "%d processors available out of %d processors configured.\n",
+           get_nprocs(), get_nprocs_conf());
   }
 
   // --- Determine IPC method from arguments ---
@@ -162,11 +167,12 @@ int main(int argc, char *argv[]) {
   }
 
   // --- Measure IPC baseline cost ---
+  printf("--------------------------------------------------\n");
   printf("Measuring IPC baseline cost...\n");
   // For the baseline measurement, we use the first pipe's descriptors.
   long long baseline_cost = measure_ipc_baseline(fds[0], fds[1], is_pipe);
-  printf("IPC baseline (write+read) cost: %.2f ns\n",
-         (double)baseline_cost / NLOOPS);
+  printf("IPC baseline (write+read) cost: %g microseconds (μs)\n",
+         (double)baseline_cost / NLOOPS / 1e3);
 
   // --- Fork Process ---
   pid_t pid = fork();
@@ -211,6 +217,10 @@ int main(int argc, char *argv[]) {
     ssize_t ret;
 
     // --- Warm-up loop ---
+    printf("--------------------------------------------------\n");
+    printf("Context Switch Cost Measurement\n");
+    printf("Mechanism: %s communication\n", is_pipe ? "Pipes" : "Eventfd");
+    printf("--------------------------------------------------\n");
     printf("Running warm-up loop (%d iterations)...\n", WARMUP_LOOPS);
     for (int i = 0; i < WARMUP_LOOPS; ++i) {
       if (is_pipe) {
@@ -257,14 +267,14 @@ int main(int argc, char *argv[]) {
         (double)(total_elapsed_ns - 2 * baseline_cost) / nswitches;
 
     printf("--------------------------------------------------\n");
-    printf("Context Switch Cost Measurement\n");
-    printf("Mechanism: %s\n", is_pipe ? "Pipes" : "Eventfd");
+    printf("Total elapsed time: %.3f seconds (s)\n", total_elapsed_ns / 1e9);
+    printf("Average cost per context-switching plus IPC overhead: %g "
+           "microseconds (μs)\n",
+           bulk_switch_ns / 1e3);
     printf("--------------------------------------------------\n");
-    printf("Total elapsed time: %.3f ms\n", total_elapsed_ns / 1e6);
-    printf("Average cost per total switch (incl. IPC): %.3f ns\n",
-           bulk_switch_ns);
-    printf("Average PURE context switch cost (est.): %.3f ns\n",
-           pure_switch_ns);
+    printf("Average cost per hypotethically pure context-switching: %.3f "
+           "microseconds (μs)\n",
+           pure_switch_ns / 1e3);
     printf("--------------------------------------------------\n");
 
     if (is_pipe) {

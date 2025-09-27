@@ -114,20 +114,24 @@ int main(int argc, char *argv[argc + 1]) {
     }
     // 5. Commit loop exit nanotime
     end = get_nano_laps();
-    // 6. Wait child process to return.
-    pid_t wpid = wait(NULL);
-    assert(pid == wpid);
-    // 7. Compute elapsed time. Compute per_switch_cost.
-    long long elapsed = end - start;
-    double per_switch_cost = (double)elapsed / (NLOOPS * 2);
-    // 8. Display results.
-    printf("Number of switches: %lld\n", (long long)(NLOOPS * 2));
-    printf("Total elapsed time: %.3f ms\n", elapsed / 1e6);
-    printf("Average cost per switch: %.3f nanoseconds (ns)\n", per_switch_cost);
-    printf("--------------------------------------------------\n");
-    // 9. Close remaining pipes file descriptors
+
+    // 6. Close remaining pipes file descriptors
     close(oyako_pipe[1]);
     close(kooya_pipe[0]);
+    // 7. Wait child process to return.
+    pid_t wpid = wait(NULL);
+    assert(pid == wpid);
+
+    // 8. Compute elapsed time. Compute per_switch_cost.
+    long long elapsed = end - start;
+    double per_switch_cost = (double)elapsed / (NLOOPS * 2);
+    // 9. Display results.
+    printf("Number of switches: %lld\n", (long long)(NLOOPS * 2));
+    printf("Total elapsed time: %.3f seconds (s)\n", elapsed / 1e9);
+    printf("--------------------------------------------------\n");
+    printf("Average cost per context-switching: %g microseconds (μs)\n",
+           per_switch_cost / 1e3);
+    printf("--------------------------------------------------\n");
 
     return EXIT_SUCCESS;
   }

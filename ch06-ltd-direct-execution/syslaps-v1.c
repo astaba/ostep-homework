@@ -13,6 +13,7 @@
 
 #define NLOOPS 1000000
 
+// Return time difference in microseconds
 long long get_time_diff(struct timeval *end, struct timeval *start) {
   return ((long long)end->tv_sec - start->tv_sec) * 1000000LL +
          ((long long)end->tv_usec - start->tv_usec);
@@ -41,13 +42,11 @@ int main(int argc, char *argv[argc + 1]) {
   }
   // Print the results of the precision test.
   if (min_nonzero_diff != -1) {
-    printf("Minimum non-zero time difference in microseconds: %lld μs\n",
+    printf("Minimum non-zero time difference: %lld microseconds (μs)\n",
            min_nonzero_diff);
     printf("This represents the approximate resolution of the system timer.\n");
   } else {
     printf("Could not measure a non-zero time difference.\n");
-    printf("The timer's resolution is likely greater than a single call's "
-           "duration.\n");
   }
 
   // --- PART 2: MEASURE EMPTY LOOP OVERHEAD ---
@@ -61,7 +60,7 @@ int main(int argc, char *argv[argc + 1]) {
   gettimeofday(&end_time, NULL);
 
   long long empty_loop_time = get_time_diff(&end_time, &start_time);
-  printf("Total elapsed time for empty loop in microseconds: %lld μs\n",
+  printf("Total elapsed time for empty loop: %lld microseconds (μs)\n",
          empty_loop_time);
 
   // --- PART 3: MEASURE SYSCALL TIME (WITH SUBTRACTION) ---
@@ -69,13 +68,13 @@ int main(int argc, char *argv[argc + 1]) {
   printf("3. Measuring 0-byte read() syscall time...\n");
   printf("Running %d calls to get an average time.\n", NLOOPS);
 
-  char buffer[1];
+  /* char buffer[1]; */
   gettimeofday(&start_time, NULL);
   for (size_t i = 0; i < NLOOPS; i++) {
     // The read() call is a syscall.
     // We use file descriptor 0 (stdin) and a size of 0 to ensure it returns
     // immediately with no data transfer, measuring only the syscall overhead.
-    ssize_t nread = read(STDIN_FILENO, buffer, 0);
+    ssize_t nread = read(STDIN_FILENO, NULL, 0);
     // Check for potential errors, though unlikely for a 0-byte read.
     if (nread == -1 || errno != 0) {
       perror("read() failed");
@@ -90,10 +89,10 @@ int main(int argc, char *argv[argc + 1]) {
   double syscall_average = (double)elapsed_syscall_time / NLOOPS;
 
   printf("Total elapsed time for %d syscalls (with loop overhead subtracted): "
-         "%lld microseconds\n",
+         "%lld microseconds (μs)\n",
          NLOOPS, elapsed_syscall_time);
   printf("--------------------------------------------------\n");
-  printf("Average time per syscall: %.3f microseconds\n", syscall_average);
+  printf("Average time per syscall: %.3f microseconds (μs)\n", syscall_average);
   printf("--------------------------------------------------\n");
 
   return EXIT_SUCCESS;
