@@ -1,13 +1,16 @@
+# Multi Level Feedback Queue Simulation
 
-This program, `mlfq.py`, allows you to see how the MLFQ scheduler
-presented in this chapter behaves. As before, you can use this to generate
-problems for yourself using random seeds, or use it to construct a
-carefully-designed experiment to see how MLFQ works under different
-circumstances. To run the program, type:
+This program, `mlfq.py`, allows you to see how the MLFQ scheduler presented
+in this chapter behaves. As before, you can use this to generate problems
+for yourself using random seeds, or use it to construct a carefully-designed
+experiment to see how MLFQ works under different circumstances. To run the
+program, type:
 
 ```sh
 prompt> ./mlfq.py
 ```
+
+## Help
 
 Use the help flag (-h) to see the options:
 
@@ -25,12 +28,12 @@ Options:
                         length of allotment (if not using -A)
   -Q QUANTUMLIST, --quantumList=QUANTUMLIST
                         length of time slice per queue level, specified as
-                        x,y,z,... where x is the quantum length for the
+                # NOTE: x,y,z,... where x is the quantum length for the
                         highest priority queue, y the next highest, and so
                         forth
   -A ALLOTMENTLIST, --allotmentList=ALLOTMENTLIST
                         length of time allotment per queue level, specified as
-                        x,y,z,... where x is the # of time slices for the
+                # NOTE: x,y,z,... where x is the # of time slices for the
                         highest priority queue, y the next highest, and so
                         forth
   -j NUMJOBS, --numJobs=NUMJOBS
@@ -53,6 +56,8 @@ Options:
                         time, and z is how often the job issues an I/O request
   -c                    compute answers for me
 ```
+
+## Example case
 
 There are a few different ways to use the simulator. One way is to generate
 some random jobs and see if you can figure out how they will behave given the
@@ -101,7 +106,7 @@ Use the -c flag to get the exact results when you are finished.
 
 This generates a random workload of three jobs (as specified), on the default
 number of queues with a number of default settings. If you run again with the
-solve flag on (-c), you'll see the same print out as above, plus the
+solve flag on (`-c`), you'll see the same print out as above, plus the
 following:
 
 ```sh
@@ -123,6 +128,8 @@ IO DONE
 [ time 8 ] Run JOB 1 at PRIORITY 2 [ TICKS 8 ALLOT 1 TIME 40 (of 42) ]
 [ time 9 ] Run JOB 1 at PRIORITY 2 [ TICKS 7 ALLOT 1 TIME 39 (of 42) ]
 ...
+...
+...
 
 Final statistics:
   Job  0: startTime   0 - response   0 - turnaround 175
@@ -133,41 +140,48 @@ Final statistics:
 ```
 
 The trace shows exactly, on a millisecond-by-millisecond time scale, what the
-scheduler decided to do. In this example, it begins by running Job 0 for 7 ms
-until Job 0 issues an I/O; this is entirely predictable, as Job 0's I/O
-frequency is set to 7 ms, meaning that every 7 ms it runs, it will issue an
-I/O and wait for it to complete before continuing. At that point, the
-scheduler switches to Job 1, which only runs 2 ms before issuing an I/O. 
-The scheduler prints the entire execution trace in this manner, and 
-finally also computes the response and turnaround times for each job
-as well as an average.
+scheduler decided to do. In this example, it begins by running Job 0 for 7
+ms until Job 0 issues an I/O; this is entirely predictable, as Job 0's I/O
+frequency is set to 7 ms, meaning that every 7 ms it runs, it will issue
+an I/O and wait for it to complete before continuing. At that point, the
+scheduler switches to Job 1, which only runs 2 ms before issuing an I/O. The
+scheduler prints the entire execution trace in this manner, and finally also
+computes the response and turnaround times for each job as well as an average.
 
-You can also control various other aspects of the simulation. For example, you
-can specify how many queues you'd like to have in the system (-n) and what the
-quantum length should be for all of those queues (-q); if you want even more
-control and varied quanta length per queue, you can instead specify the length
-of the quantum (time slice) for each queue with -Q, e.g., -Q 10,20,30]
-simulates a scheduler with three queues, with the highest-priority queue
-having a 10-ms time slice, the next-highest a 20-ms time-slice, and the
-low-priority queue a 30-ms time slice.
+## Options
+
+### Time slices: quanta
+
+You can also control various other aspects of the simulation. For example,
+you can specify how many queues you'd like to have in the system (`-n`)
+and what the quantum length should be for all of those queues (`-q`);
+if you want even more control and varied quanta length per queue, you can
+instead specify the length of the quantum (time slice) for each queue with
+`-Q`, e.g., `-Q 10,20,30` simulates a scheduler with three queues, with
+the highest-priority queue having a 10-ms time slice, the middle-priority
+a 20-ms time-slice, and the low-priority queue a 30-ms time slice.
+
+### Time allotments
 
 You can separately control how much time allotment there is per queue
-too. This can be set for all queues with -a, or per queue with -A, e.g., -A
-20,40,60 sets the time allotment per queue to 20ms, 40ms, and 60ms,
-respectively. Note that while the chapter talks about allotments in
-terms of time, here it is done in terms of number of time slices,
-i.e., if the time slice length for a given queue is 10 ms, and the
-allotment is 2, the job can run for 2 time slices (20 ms) at that
-queue level before moving down in priority.
+too. This can be set for all queues with `-a`, or per queue with `-A`, e.g.,
+`-q 10 -A 2,4,6` sets the time allotment per queue to 20ms, 40ms, and 60ms,
+respectively. Note that while the chapter talks about allotments in terms
+of time, here it is done in terms of number of time slices, i.e., **if
+the time slice length for a given queue is 10 ms, and the allotment is 2,
+the job can run for 2 time slices (20 ms) at that queue level before moving
+down in priority.**
 
-If you are randomly generating jobs, you can also control how long they might
-run for (-m), or how often they generate I/O (-M). If you, however, want more
-control over the exact characteristics of the jobs running in the system, you
-can use -l (lower-case L) or --jlist, which allows you to specify the exact
-set of jobs you wish to simulate. The list is of the form:
-x1,y1,z1:x2,y2,z2:... where x is the start time of the job, y is the run time
-(i.e., how much CPU time it needs), and z the I/O frequency (i.e., after
-running z ms, the job issues an I/O; if z is 0, no I/Os are issued).
+### Jobs customization
+
+If you are randomly generating jobs, you can also control how long they
+might run for (`-m`), or how often they generate I/O (`-M`). If you, however,
+want more control over the exact characteristics of the jobs running in the
+system, you can use `-l` (lower-case L) or `--jlist`, which allows you to
+specify the exact set of jobs you wish to simulate. The list is of the form:
+`x1,y1,z1:x2,y2,z2:...` where `x` is the start time of the job, `y` is the
+run time (i.e., how much CPU time it needs), and `z` the I/O frequency (i.e.,
+after running `z` ms, the job issues an I/O; if `z` is 0, no I/Os are issued).
 
 For example, if you wanted to recreate the example in Figure 8.3
 you would specify a job list as follows:
@@ -176,29 +190,37 @@ you would specify a job list as follows:
 prompt> ./mlfq.py --jlist 0,180,0:100,20,0 -q 10
 ```
 
-Running the simulator in this way creates a three-level MLFQ, with each level
-having a 10-ms time slice. Two jobs are created: Job 0 which starts at time 0,
-runs for 180 ms total, and never issues an I/O; Job 1 starts at 100 ms, needs
-only 20 ms of CPU time to complete, and also never issues I/Os.
+Running the simulator in this way creates a three-level **MLFQ**, with each
+level having a 10-ms time slice. Two jobs are created: Job 0 which starts
+at time 0, runs for 180 ms total, and never issues an I/O; Job 1 starts at
+100 ms, needs only 20 ms of CPU time to complete, and also never issues I/Os.
 
-Finally, there are three more parameters of interest. The -B flag, if set to a
-non-zero value, boosts all jobs to the highest-priority queue every N
-milliseconds, when invoked as such: 
+### Priority boost
+
+Finally, there are three more parameters of interest. The `-B` flag, if set
+to a non-zero value, boosts all jobs to the highest-priority queue every `N`
+milliseconds, when invoked as such:
+
 ```sh
   prompt> ./mlfq.py -B N
 ```
 The scheduler uses this feature to avoid starvation as discussed in the
 chapter. However, it is off by default.
 
-The -S flag invokes older Rules 4a and 4b, which means that if a job
-issues an I/O before completing its time slice, it will return to that
-same priority queue when it resumes execution, with its full allotment
-intact.  This enables gaming of the scheduler.
+### Gaming the Scheduler
 
-Finally, you can easily change how long an I/O lasts by using the -i flag. By
+The `-S` flag invokes older Rules 4a and 4b (see Chapter 8.2), which means that
+if a job issues an I/O before completing its time slice, it will return to
+that same priority queue when it resumes execution, with its full allotment
+intact. This enables gaming of the scheduler (see Chapter 8.2, one subtitle
+apart after Example 3 subtitle, third paragraph starting with "Second, ")
+
+### I/O burst policy
+
+Finally, you can easily change how long an I/O lasts by using the `-i` flag. By
 default in this simplistic model, each I/O takes a fixed amount of time of 5
-milliseconds or whatever you set it to with this flag. 
+milliseconds or whatever you set it to with this flag.
 
 You can also play around with whether jobs that just complete an I/O are moved
-to the head of the queue they are in or to the back, with the -I flag. Check
-it out, it's fun! 
+to the head of the queue they are in or to the back, with the `-I` flag. Check
+it out, it's fun!

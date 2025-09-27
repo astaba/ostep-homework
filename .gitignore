@@ -10,3 +10,6 @@
 
 # NASM Assembly Listing
 *.lst
+
+# Practice test
+*sandbox*
