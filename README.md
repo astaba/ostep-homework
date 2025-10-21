@@ -107,9 +107,9 @@ Chapter | What To Do
 ├── ch05-cpu-api                (done)
 ├── ch06-ltd-direct-execution   (done)
 ├── ch07-cpu-sched              (done)
-├── ch08-cpu-sched-mlfq
-├── ch09-cpu-sched-lottery
-├── ch10-cpu-sched-multi
+├── ch08-cpu-sched-mlfq         (done)
+├── ch09-cpu-sched-lottery      (done)
+├── ch10-cpu-sched-multi        (done)
 ├── ch15-vm-mechanism
 ├── ch16-vm-segmentation
 ├── ch17-vm-freespace

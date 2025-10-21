@@ -143,11 +143,3 @@ Options:
 Probably the best to learn about are some of the tracing options (like -t, -T,
 -C, and -S). Play around with these to see better what the scheduler and
 system are doing.
-
-
-
-
-
-
-
-
