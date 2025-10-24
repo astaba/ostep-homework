@@ -110,6 +110,8 @@ Chapter | What To Do
 ├── ch08-cpu-sched-mlfq         (done)
 ├── ch09-cpu-sched-lottery      (done)
 ├── ch10-cpu-sched-multi        (done)
+├── ch13-address-spaces         (done)
+├── ch14-memory-api             (done)
 ├── ch15-vm-mechanism
 ├── ch16-vm-segmentation
 ├── ch17-vm-freespace
