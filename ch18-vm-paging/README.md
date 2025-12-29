@@ -1,4 +1,3 @@
-
 # Overview
 
 In this homework, you will use a simple program, which is known as
@@ -6,7 +5,7 @@ paging-linear-translate.py, to see if you understand how simple
 virtual-to-physical address translation works with linear page tables. To run
 the program, remember to either type just the name of the program
 (./paging-linear-translate.py) or possibly this (python
-paging-linear-translate.py). When you run it with the -h (help) flag, you 
+paging-linear-translate.py). When you run it with the -h (help) flag, you
 see:
 
 ```sh
@@ -16,7 +15,7 @@ Usage: paging-linear-translate.py [options]
 Options:
 -h, --help              show this help message and exit
 -s SEED, --seed=SEED    the random seed
--a ASIZE, --asize=ASIZE 
+-a ASIZE, --asize=ASIZE
                         address space size (e.g., 16, 64k, ...)
 -p PSIZE, --physmem=PSIZE
                         physical memory size (e.g., 16, 64k, ...)
@@ -31,7 +30,7 @@ Options:
 First, run the program without any arguments:
 
 ```sh
-prompt> ./paging-linear-translate.py 
+prompt> ./paging-linear-translate.py
 ARG seed 0
 ARG address space size 16k
 ARG phys mem size 64k
@@ -59,8 +58,8 @@ Virtual Address Trace
   VA  4: 0x00003a1e (decimal:    14878) --> PA or invalid?
 ```
 
-For each virtual address, write down the physical address it 
-translates to OR write down that it is an out-of-bounds 
+For each virtual address, write down the physical address it
+translates to OR write down that it is an out-of-bounds
 address (e.g., a segmentation fault).
 
 As you can see, what the program provides for you is a page table for a
@@ -72,11 +71,11 @@ mapped to a particular physical frame number (PFN) and thus valid, or not
 valid.
 
 The format of the page-table entry is simple: the left-most (high-order) bit
-is the valid bit; the remaining bits, if valid is 1, is the PFN. 
+is the valid bit; the remaining bits, if valid is 1, is the PFN.
 
 In the example above, the page table maps VPN 0 to PFN 0xc (decimal 12), VPN 3
 to PFN 0x6 (decimal 6), and leaves the other two virtual pages, 1 and 2, as
-not valid. 
+not valid.
 
 Because the page table is a linear array, what is printed above is a replica
 of what you would see in memory if you looked at the bits yourself. However,
@@ -127,14 +126,74 @@ VA  4: 00003a1e (decimal: 14878) --> 00006a1e (27166) [VPN 3]
 Of course, you can change many of these parameters to make more interesting
 problems. Run the program with the -h flag to see what options there are:
 
-* The -s flag changes the random seed and thus generates different page table values as well as different virtual addresses to translate.
+* The -s flag changes the random seed and thus generates different page
+table values as well as different virtual addresses to translate.
 * The -a flag changes the size of the address space.
 * The -p flag changes the size of physical memory.
 * The -P flag changes the size of a page.
-* The -n flag can be used to generate more addresses to translate (instead of the default 5).
-* The -u flag changes the fraction of mappings that are valid, from 0% (-u 0) up to 100% (-u 100). The default is 50, which means that roughly 1/2 of the pages in the virtual address space will be valid.
+* The -n flag can be used to generate more addresses to translate (instead
+of the default 5).
+* The -u flag changes the fraction of mappings that are valid, from 0% (-u 0)
+up to 100% (-u 100). The default is 50, which means that roughly 1/2 of the
+pages in the virtual address space will be valid.
 * The -v flag prints out the VPN numbers to make your life easier.
 
+## Homework 18.1
 
+1. Before doing any translations, let’s use the simulator to study how linear page tables change size given different parameters. Compute the size of linear page tables as different parameters change. Some suggested inputs are below; by using the `-v` flag,you can see how many page-table entries are filled. First, to understand how linear page table size changes as the address space grows:
 
+    ```
+    ./paging-linear-translate.py -P 1k -a 1m -p 512m -v -n 0
+    ./paging-linear-translate.py -P 1k -a 2m -p 512m -v -n 0
+    ./paging-linear-translate.py -P 1k -a 4m -p 512m -v -n 0
+    ```
 
+    Then, to understand how linear page table size changes as page size grows:
+
+    ```
+    ./paging-linear-translate.py -P 1k -a 1m -p 512m -v -n 0
+    ./paging-linear-translate.py -P 2k -a 1m -p 512m -v -n 0
+    ./paging-linear-translate.py -P 4k -a 1m -p 512m -v -n 0
+    ```
+
+    Before running any of these, try to think about the expected trends. How should page-table size change as the address space grows? As the page size grows? Why shouldn’t we just use really big pages in general?
+
+### Answer
+
+- The page-table size grows as the address-space grows.
+- The page-table size decreases as the page size grows.
+- Using just big pages is ill-advised causing internal fragmentation in big
+chunks sparsely dirty on the physical memory causing wasteful usage the resource
+leading to saturation of the RAM.
+
+## Homework 18.2
+
+2. Now let’s do some translations. Start with some small examples, and change the number of pages that are allocated to the address space with the `-u` flag. For example:
+
+    ```
+    ./paging-linear-translate.py -P 1k -a 16k -p 32k -v -u 0
+    ./paging-linear-translate.py -P 1k -a 16k -p 32k -v -u 25
+    ./paging-linear-translate.py -P 1k -a 16k -p 32k -v -u 50
+    ./paging-linear-translate.py -P 1k -a 16k -p 32k -v -u 75
+    ./paging-linear-translate.py -P 1k -a 16k -p 32k -v -u 100
+    ```
+
+    What happens as you increase the percentage of pages that are allocated in each address space?
+
+### Answer
+
+As the number of allocated physical frames increases segmentation faults
+decrease.
+
+3. Now let’s try some different random seeds, and some different (and sometimes quite crazy) address-space parameters, for variety:
+
+    ```
+    ./paging-linear-translate.py -P 8  -a 32   -p 1024 -v -s 1
+    ./paging-linear-translate.py -P 8k -a 32k  -p 1m   -v -s 2
+    ./paging-linear-translate.py -P 1m -a 256m -p 512m -v -s 3
+    ```
+
+    Which of these parameter combinations are unrealistic? Why?
+
+In the second case VPN# will be 4 and the PFN# will be 128. Since
+default value of the -u (percentage of physical frames mapped) option is 50% the huge difference between both table sizes makes it highly unlikely that one VP be backed up by a PF.

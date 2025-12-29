@@ -26,12 +26,13 @@ int main(int argc, char *argv[argc + 1]) {
   // Validate required argument: the number of megabytes (MB) to allocate.
   // Display usage message.
   if (argc < 2) {
-    fprintf(stderr, "Usage: %s <megabytes_to_use> [time_seconds]\n", argv[0]);
-    fprintf(
-        stderr,
-        "  <megabytes_to_use>: The amount of memory to allocate (in MB).\n");
-    fprintf(stderr, "  [time_seconds]: Optional. The duration to run (in "
-                    "seconds). Runs indefinitely if omitted.\n");
+    fprintf(stderr,
+            "Usage: %s <megabytes_to_use> [time_seconds]\n"
+            "  <megabytes_to_use>: The amount of memory to allocate (in MB).\n"
+            "  [time_seconds]: Optional. The duration to run (in "
+            "seconds). Runs indefinitely if omitted.\n",
+            argv[0]);
+    exit(EXIT_FAILURE);
   }
 
   // 1. Parse required arguments and convert it from MB to MiB
@@ -74,9 +75,11 @@ int main(int argc, char *argv[argc + 1]) {
   }
   printf("Memory successfully allocated.\n");
 
-  // 3. Mark all pages as "dirty" initially.
-  // We touch every page (PAGE_SIZE = 4096 bytes) to force the OS to
-  // commit physical pages and count this memory as dirty.
+  /* 3. Mark all pages as "dirty" initially.
+   * We touch every page (PAGE_SIZE = 4096 bytes) to force the OS to commit
+   * physical pages and count this memory as dirty. The purpose is to
+   * pre-emptively incur in the time-cost of initial TLB miss, subsequent page
+   * fault and subsequent demand paging. */
   for (size_t i = 0; i < bytes_to_allocate; i += PAGE_SIZE) {
     memory_array[i] = 0xAA; // Write a distinct value.
   }

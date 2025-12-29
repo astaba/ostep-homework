@@ -1,4 +1,3 @@
-
 # Overview
 
 This program, malloc.py, allows you to see how a simple memory allocator
@@ -18,7 +17,8 @@ works. Here are the options that you have at your disposal:
   -p POLICY, --policy=POLICY
                         list search (BEST, WORST, FIRST)
   -l ORDER, --listOrder=ORDER
-                        list order (ADDRSORT, SIZESORT+, SIZESORT-, INSERT-FRONT, INSERT-BACK)
+                        list order (ADDRSORT, SIZESORT+, SIZESORT-, INSERT-
+                        FRONT, INSERT-BACK)
   -C, --coalesce        coalesce the free list?
   -n OPSNUM, --numOps=OPSNUM
                         number of random ops to generate
@@ -33,12 +33,12 @@ works. Here are the options that you have at your disposal:
 
 One way to use it is to have the program generate some random allocation/free
 operations and for you to see if you can figure out what the free list would
-look like, as well as the success or failure of each operation. 
+look like, as well as the success or failure of each operation.
 
 Here is a simple example:
 
 ```sh
-prompt> ./malloc.py -S 100 -b 1000 -H 4 -a 4 -l ADDRSORT -p BEST -n 5 
+prompt> ./malloc.py -S 100 -b 1000 -H 4 -a 4 -l ADDRSORT -p BEST -n 5
 
 ptr[0] = Alloc(3)  returned ?
 List?
@@ -81,14 +81,17 @@ ptr[1] = Alloc(5)  returned 1012 (searched 2 elements)
 Free List [ Size 2 ]:  [ addr:1000 sz:8 ] [ addr:1020 sz:80 ]
 
 Free(ptr[1]) returned 0
-Free List [ Size 3 ]:  [ addr:1000 sz:8 ] [ addr:1008 sz:12 ] [ addr:1020 sz:80 ]
+Free List [ Size 3 ]:  [ addr:1000 sz:8 ] [ addr:1008 sz:12 ] [ addr:1020
+sz:80 ]
 
 ptr[2] = Alloc(8)  returned 1012 (searched 3 elements)
 Free List [ Size 2 ]:  [ addr:1000 sz:8 ] [ addr:1020 sz:80 ]
+```
 
 As you can see, the first allocation operation (an allocation) returns the
 following information:
 
+```sh
 ptr[0] = Alloc(3)  returned 1004 (searched 1 elements)
 Free List [ Size 1 ]:  [ addr:1008 sz:92 ]
 ```
@@ -98,7 +101,7 @@ easy to guess that the Alloc(3) request will succeed. Further, it will just
 return the first chunk of memory and make the remainder into a free list. The
 pointer returned will be just beyond the header (address:1004), and the
 allocated space is rounded up to 4 bytes, leaving the free list with 92 bytes
-starting at 1008. 
+starting at 1008.
 
 The next operation is a Free, of "ptr[0]" which is what stores the results of
 the previous allocation request. As you can expect, this free will succeed
@@ -111,12 +114,13 @@ Free List [ Size 2 ]:  [ addr:1000 sz:8 ] [ addr:1008 sz:92 ]
 
 Indeed, because we are NOT coalescing the free list, we now have two elements
 on it, the first being 8 bytes large and holding the just-returned space, and
-the second being the 92-byte chunk. 
+the second being the 92-byte chunk.
 
 We can indeed turn on coalescing via the -C flag, and the result is:
 
 ```sh
 prompt> ./malloc.py -S 100 -b 1000 -H 4 -a 4 -l ADDRSORT -p BEST -n 5 -c -C
+
 ptr[0] = Alloc(3)  returned 1004 (searched 1 elements)
 Free List [ Size 1 ]:  [ addr:1008 sz:92 ]
 
@@ -138,18 +142,26 @@ coalesced as expected.
 
 There are some other interesting options to explore:
 
-* `-p BEST` or `-p WORST` or `-p FIRST`: This option lets you use these three different strategies to look for a chunk of memory to use during an allocation request 
-* `-l ADDRSORT` or `-l SIZESORT+` or `-l SIZESORT-` or `-l INSERT-FRONT` or `-l INSERT-BACK`: This option lets you keep the free list in a particular order, say sorted by address of the free chunk, size of free chunk (either increasing with a + or decreasing with a -), or simply returning free chunks to the front (INSERT-FRONT) or back (INSERT-BACK) of the free list.
-* `-A list_of_ops`: This option lets you specify an exact series of requests instead of randomly-generated ones. For example, running with the flag "-A +10,+10,+10,-0,-2" will allocate three chunks of size 10 bytes (plus header), and then free the first one ("-0") and then free the third one ("-2"). What will the free list look like then?
+* `-p BEST` or `-p WORST` or `-p FIRST`: This option lets you set the policy
+by using three different strategies to look for a chunk of memory to use
+during an allocation request:
+  - `BEST`: Search all the list and select the smallest free chunk greater
+  than or equal to the
+  requested size after alignment.
+  - `WORST`: Search all the list and select the larger free chunk.
+  - `FIRST`: Search the list in its arranged order and stop at the first
+  chunk greater or equal to the requested chunk.
+* `-l ADDRSORT` or `-l SIZESORT+` or `-l SIZESORT-` or `-l INSERT-FRONT` or
+`-l INSERT-BACK`: This option lets you keep the free list in a particular
+order, say sorted by address of the free chunk, size of free chunk (either
+increasing with a + or decreasing with a -), or simply returning free chunks
+to the front (INSERT-FRONT) or back (INSERT-BACK) of the free list.
+* `-A list_of_ops`: This option lets you specify an exact series of requests
+instead of randomly-generated ones. For example, running with the flag
+"-A +10,+10,+10,-0,-2" will allocate three chunks of size 10 bytes (plus
+header), and then free the first one ("-0") and then free the third one
+("-2"). What will the free list look like then?
 
 Those are the basics. Use the questions from the book chapter to explore more,
 or create new and interesting questions yourself to better understand how
 allocators function.
-
-
-
-
-
-  
-
-  

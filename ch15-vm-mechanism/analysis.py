@@ -16,24 +16,31 @@ import subprocess
 import sys
 from optparse import OptionParser
 
-import plotly.graph_objects as go
-from plotly.offline import plot
+from plotly import graph_objects as go
 
 # --- Configuration ---
 SIMULTION_EXE = "relocation.py"
 ADDRESS_SPACE_SIZE = 1024
-NUM_ADDRESSES = 100       # Fixed number of virtual addresses to test per run (-n 100)
+NUM_ADDRESSES = 100  # Fixed number of virtual addresses to test per run (-n 100)
 # Use a step of 16, as requested, for "System Programming Lore"
 LIMIT_STEP = 16
 LIMIT_RANGE = range(0, ADDRESS_SPACE_SIZE + 1, LIMIT_STEP)
 
-# --- Command Line Parsing ---
+# --- This script's Command Line Parsing ---
 parser = OptionParser()
-parser.add_option('-s', '--analysis-seed', default=42, help='the random seed for the *overall* analysis sequence (defaults to 42)',
-                  action='store', type='int', dest='analysis_seed')
+parser.add_option(
+    "-s",
+    "--analysis-seed",
+    default=42,
+    help="the random seed for the *overall* analysis sequence (defaults to 42)",
+    action="store",
+    type="int",
+    dest="analysis_seed",
+)
 (options, args) = parser.parse_args()
 
 # --- Utility Functions ---
+
 
 def run_simulation_and_analyze(limit_value, seed):
     """
@@ -42,31 +49,35 @@ def run_simulation_and_analyze(limit_value, seed):
     for a 16-byte access.
     """
 
-    # Construct the command: python relocation.py -s <seed> -n 100 -l
-    # <lbounds> -c
+    # Build command: relocation.py -s <seed> -n 100 -l <lbounds> -c
     command = [
         sys.executable,
         SIMULTION_EXE,
-        '-s', str(seed),
-        '-n', str(NUM_ADDRESSES),
-        '-l', str(limit_value),
-        '-c'
+        "-s",
+        str(seed),
+        "-n",
+        str(NUM_ADDRESSES),
+        "-l",
+        str(limit_value),
+        "-c",
     ]
 
     try:
         # Run the subprocess, capture stdout, and decode it
         result = subprocess.run(
-            command,
-            capture_output=True,
-            text=True,
-            check=True,
-            encoding='utf-8'
+            command, capture_output=True, text=True, check=True, encoding="utf-8"
         )
     except subprocess.CalledProcessError as e:
-        print(f"Error running relocation.py (Limit={limit_value}, Seed={seed}): {e.stderr}", file=sys.stderr)
+        print(
+            f"Error running relocation.py (Limit={limit_value}, Seed={seed}): {e.stderr}",
+            file=sys.stderr,
+        )
         return None
     except FileNotFoundError:
-        print("Error: 'relocation.py' not found. Ensure it is in the same directory and is executable.", file=sys.stderr)
+        print(
+            "Error: 'relocation.py' not found. Ensure it is in the same directory and is executable.",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
     # Analyze the output
@@ -74,7 +85,7 @@ def run_simulation_and_analyze(limit_value, seed):
 
     # We are looking for lines containing '--> VALID:'
     for line in result.stdout.splitlines():
-        if '--> VALID:' in line:
+        if "--> VALID:" in line:
             success_count += 1
 
     # The fraction is (Successful Translations / Total Addresses
@@ -83,7 +94,9 @@ def run_simulation_and_analyze(limit_value, seed):
 
 
 def main():
-    print("--- Running Relocation Analysis Simulation (16-byte Access, Plotly Output) ---")
+    print(
+        "--- Running Relocation Analysis Simulation (16-byte Access, Plotly Output) ---"
+    )
     print(f"Total Addresses per Run (-n): {NUM_ADDRESSES}")
     print(f"Address Space Size (asize): {ADDRESS_SPACE_SIZE} bytes")
     print(f"Limit Register (-l) Range: 0 to {ADDRESS_SPACE_SIZE} (Step: {LIMIT_STEP})")
@@ -92,7 +105,7 @@ def main():
     limits = []
     fractions = []
 
-    random.seed(options.analysis_seed) # Fixed seed for overall reproducibility
+    random.seed(options.analysis_seed)  # Fixed seed for overall reproducibility
 
     for lbounds in LIMIT_RANGE:
         seed = random.randint(1000, 100000)
@@ -101,10 +114,11 @@ def main():
         if fraction is not None:
             limits.append(lbounds)
             fractions.append(fraction)
-            print(f"Limit (-l={lbounds:4d}) | Seed (-s={seed:6d}) | Success Rate: {fraction * 100.0:.1f}%")
+            print(
+                f"Limit (-l={lbounds:4d}) | Seed (-s={seed:6d}) | Success Rate: {fraction * 100.0:.1f}%"
+            )
         else:
             print(f"Limit (-l={lbounds:4d}) | Simulation Failed, skipping point.")
-
 
     print("-" * 60)
     print("Analysis complete. Generating Plotly results...")
@@ -117,14 +131,16 @@ def main():
     fig = go.Figure()
 
     # Add the main trace
-    fig.add_trace(go.Scatter(
-        x=limits,
-        y=percentages,
-        mode='lines+markers',
-        name='16-byte Block Success Rate',
-        marker=dict(size=6, color='#C85C50'),
-        line=dict(width=3, shape='linear')
-    ))
+    fig.add_trace(
+        go.Scatter(
+            x=limits,
+            y=percentages,
+            mode="lines+markers",
+            name="16-byte Block Success Rate",
+            marker=dict(size=6, color="#C85C50"),
+            line=dict(width=2, shape="linear"),
+        )
+    )
 
     # Add reference lines (ASIZE Boundary and Minimum Limit)
     fig.add_vline(
@@ -132,7 +148,7 @@ def main():
         line_dash="dash",
         line_color="red",
         annotation_text=f"ASIZE Boundary ({ADDRESS_SPACE_SIZE})",
-        annotation_position="top right"
+        annotation_position="top right",
     )
 
     fig.add_vline(
@@ -140,33 +156,28 @@ def main():
         line_dash="dot",
         line_color="green",
         annotation_text=f"Min Limit for 16-byte Access ({LIMIT_STEP})",
-        annotation_position="bottom right"
+        annotation_position="bottom right",
     )
 
-    title_line_1 = f'<b>Analysis Seed: {options.analysis_seed}, Runs: {SIMULTION_EXE} -s <ever_diff> -n {NUM_ADDRESSES} -l <0 -- {ADDRESS_SPACE_SIZE}> -c</b>'
-    title_line_2 = f'Success Rate of 16-byte Access vs. Limit Register Size (Segment Granularity)'
-    title = f'{title_line_1}<br>{title_line_2}'
+    # title_line_1 = f"<b>Driver Script's Seed: {options.analysis_seed}, Runs: {SIMULTION_EXE} -s <ever_diff> -n {NUM_ADDRESSES} -l <0 -- {ADDRESS_SPACE_SIZE}> -c</b>"
+    title = f"<b>Driver Script's Seed: {options.analysis_seed}, Runs: "
+    title += (
+        f"{SIMULTION_EXE} -s <ever_diff> -n {NUM_ADDRESSES} -l <{LIMIT_RANGE}> -c</b>"
+    )
+    # title += "<br>"
+    # title += f"Limit Register (-l): {LIMIT_RANGE} (Step: {LIMIT_STEP})"
+    # title_line_2 = "Success Rate of 16-byte Access vs. Limit Register Size (Segment Granularity)"
+    # title = f"{title_line_1}<br>{title_line_2}"
 
     # Update layout for aesthetics and clarity
     fig.update_layout(
-        title={
-            'text': title,
-            'x': 0.5,
-            'xanchor': 'center'
-        },
-        xaxis_title=f'<b>Limit Register Value (-l)</b><br>Ranging from 0 to {ADDRESS_SPACE_SIZE} - Stepped by {LIMIT_STEP} bytes',
-        yaxis_title='Percentage of 16-byte Blocks Within Bounds (%)',
-        yaxis=dict(
-            tickmode='linear',
-            dtick=10,
-            range=[0, 100],
-            gridcolor='#e0e0e0'
-        ),
-        xaxis=dict(
-            gridcolor='#e0e0e0'
-        ),
-        template='plotly_white', # Clean, professional theme
-        hovermode="x unified"
+        title={"text": title, "x": 0.5, "xanchor": "center"},
+        xaxis_title=f"<b>Limit Register Value (-l)</b><br>Ranging from 0 to {ADDRESS_SPACE_SIZE} - Stepped by {LIMIT_STEP} bytes",
+        yaxis_title="Percentage of 16-byte Blocks Within Bounds (%)",
+        yaxis=dict(tickmode="linear", dtick=10, range=[0, 100], gridcolor="#e0e0e0"),
+        xaxis=dict(gridcolor="#e0e0e0"),
+        template="plotly_white",  # Clean, professional theme
+        hovermode="x unified",
     )
 
     # The plot is generated in an interactive HTML file which opens in
@@ -175,5 +186,5 @@ def main():
     fig.show()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
