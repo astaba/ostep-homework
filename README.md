@@ -115,9 +115,9 @@ prompt> ./disk.py -h
 ├── ch14-memory-api             (done)
 ├── ch15-vm-mechanism           (done)
 ├── ch16-vm-segmentation        (done)
-├── ch17-vm-freespace
-├── ch18-vm-paging
-├── ch20-vm-smalltables
+├── ch17-vm-freespace           (done)
+├── ch18-vm-paging              (done)
+├── ch20-vm-smalltables         (done)
 ├── ch21-vm-beyondphys
 ├── ch22-vm-beyondphys-policy
 ├── ch26-threads-intro

@@ -169,18 +169,18 @@ def plot_results(data):
 
     # Architectural Zones based on your data and hardware specs
     zones = [
-        (1, 64, "L1 TLB Hit", "rgba(34, 197, 94, 0.1)"),
-        (64, 512, "L2 TLB Hit", "rgba(59, 130, 246, 0.1)"),
-        (512, 1024, "L2 Walk", "rgba(249, 115, 22, 0.1)"),
-        (1024, max(pages), "L3 / Pre-fetcher", "rgba(239, 68, 68, 0.1)"),
+        (1, 64, "L1 TLB Hit", "#22c55e", 0.1),
+        (64, 512, "L2 TLB Hit", "#3b82f6", 0.1),
+        (512, 1024, "L2 Walk", "#f97316", 0.1),
+        (1024, max(pages), "L3 / Pre-fetcher", "#ef4444", 0.1),
     ]
 
-    for start, end, label, color in zones:
+    for start, end, label, color, opacity in zones:
         fig.add_vrect(
             x0=start,
             x1=end,
             fillcolor=color,
-            # opacity=0.08,
+            opacity=opacity,
             layer="below",
             line_width=0,
             annotation_text=label,
