@@ -1,6 +1,16 @@
 
-all: mem
+.PHONY: all clean
 
-mem: mem.c
-	gcc -o mem mem.c -Wall -O
+CC=gcc
+CFLAGS=-Wall -O
+SRC=$(wildcard *.c)
+BINARIES=$(subst .c,,$(SRC))
+
+all: $(BINARIES)
+
+$(word 1, $(BINARIES)): %: %.c
+	gcc -o $@ $< $(CFLAGS)
+
+clean:
+	rm -rf $(BINARIES) *.o *.out
 
